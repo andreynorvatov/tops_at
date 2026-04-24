@@ -2,8 +2,8 @@ import psycopg2
 from psycopg2.extras import execute_batch
 from pathlib import Path
 from tqdm import tqdm
-import os
-from dotenv import load_dotenv
+
+from settings import settings
 
 
 def count_csv_lines(filepath: Path) -> int:
@@ -181,19 +181,17 @@ if __name__ == "__main__":
     TABLE_NAME = "tops_rowid_pp"
     BATCH_SIZE = 100_000  # Оптимально для 3-6 млн строк
 
-    load_dotenv()
-
     # Конфигурация
     DB_CONFIG = {
-        "host": os.getenv('DATA_PROVIDER_HOST'),
-        "database": os.getenv('DATA_PROVIDER_DATABASE'),
-        "user": os.getenv('DATA_PROVIDER_USER'),
-        "password": os.getenv('DATA_PROVIDER_PWD'),
+        "host": settings.DATABASE_HOST,
+        "database": settings.DATAPROVIDER_DATABASE,
+        "user": settings.DATAPROVIDER_USER,
+        "password": settings.DATAPROVIDER_PWD,
         "options": "-c search_path=api"
     }
 
     # Основной метод - быстрый COPY
     # upload_csv()
     
-    # Для отслеживания прогресса раскомментировать:
+    # Для отслеживания прогресса:
     upload_csv_with_progress()

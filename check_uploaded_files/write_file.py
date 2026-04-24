@@ -27,7 +27,7 @@ def generate_filename(prefix: str = "", ext: str = "csv") -> str:
     return f"{prefix}_{timestamp}.{ext}" if prefix else f"{timestamp}.{ext}"
 
 
-def generate_file(data: dict[str, dict[str, str]], file_dir: str = "check_uploaded_files/artifacts"):
+def generate_file(data: dict[str, dict[str, str]], file_dir: str = "artifacts"):
     # Создаем папку artifacts, если она не существует
     os.makedirs(file_dir, exist_ok=True)
 

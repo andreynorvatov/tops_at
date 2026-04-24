@@ -53,24 +53,21 @@ def write_csv_file(filepath: str, header: list[str], data: list[list[str]]) -> N
 
 def main() -> None:
     """Основная функция. Удаляет дубликаты и перемешивает файл."""
-    input_file = 'data/row_ids.csv'
-    output_file = 'data/row_ids_shuffle.csv'
-    row_id_index = 0  # row_id обычно первая колонка
 
     # Чтение данных
-    header, data = read_csv_file(input_file)
+    header, data = read_csv_file(INPUT_FILE)
 
     # Проверка уникальности row_id
-    duplicates = find_duplicates(data, row_id_index)
+    duplicates = find_duplicates(data, ROW_ID_INDEX)
 
     if duplicates:
-        print_duplicate_info(duplicates, data, row_id_index)
+        print_duplicate_info(duplicates, data, ROW_ID_INDEX)
 
         # Опция: удалить дубликаты
         remove_duplicates_flag = input("Удалить дубликаты? (y/n): ").lower() == 'y'
 
         if remove_duplicates_flag:
-            data = remove_duplicates(data, row_id_index)
+            data = remove_duplicates(data, ROW_ID_INDEX)
             print(f"Удалено дублирующихся строк: {len(data)}")
     else:
         print("✓ Все row_id уникальны!")
@@ -79,11 +76,16 @@ def main() -> None:
     shuffle_data(data)
 
     # Запись результата
-    write_csv_file(output_file, header, data)
+    write_csv_file(OUTPUT_FILE, header, data)
 
-    print(f"\nФайл сохранен: {output_file}")
+    print(f"\nФайл сохранен: {OUTPUT_FILE}")
     print(f"Всего строк в итоговом файле: {len(data)}")
 
 
 if __name__ == '__main__':
+
+    INPUT_FILE = 'data/row_ids_2026-04-24_14-43-26.csv'
+    OUTPUT_FILE = 'data/row_ids_2026-04-24_14-43-26_shuffle.csv'
+    ROW_ID_INDEX = 0  # row_id обычно первая колонка
+
     main()
