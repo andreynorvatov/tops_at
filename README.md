@@ -10,6 +10,9 @@ _Набор скриптов для проверки успешности фон
 4. В результате будет собран csv в директории [artifacts](check_uploaded_files/artifacts)
 5. В консоль будет выведен краткий результат проверки
 
+[main_sync.py](check_uploaded_files/main_sync.py) (`deprecated`) - первая синхронная реализация проверки.
+[test.py](check_uploaded_files/test.py) - отладочный и проверочный скрипт для работы с сервисом TOPS
+
 ### Подготовка данных для upsert [generate_rowid_dataset](generate_rowid_dataset)
 
 _Набор скриптов для подготовки тестовых данных для работы скрипта upsert (обновления строк из файла)_
