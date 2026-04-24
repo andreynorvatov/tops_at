@@ -4,6 +4,7 @@
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
       <excludeFolder url="file://$MODULE_DIR$/check_uploaded_files/artifacts" />
+      <excludeFolder url="file://$MODULE_DIR$/generate_rowid_dataset/data" />
     </content>
     <orderEntry type="jdk" jdkName="Python 3.14 (tops_at)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
