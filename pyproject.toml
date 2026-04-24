@@ -1,0 +1,25 @@
+[project]
+name = "tops-at"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "aiohappyeyeballs>=2.6.1",
+    "aiohttp>=3.13.5",
+    "aiosignal>=1.4.0",
+    "attrs>=26.1.0",
+    "certifi>=2026.4.22",
+    "charset-normalizer>=3.4.7",
+    "dotenv>=0.9.9",
+    "frozenlist>=1.8.0",
+    "idna>=3.13",
+    "multidict>=6.7.1",
+    "propcache>=0.4.1",
+    "psycopg2-binary>=2.9.12",
+    "python-dotenv>=1.2.2",
+    "requests>=2.33.1",
+    "tqdm>=4.67.3",
+    "urllib3>=2.6.3",
+    "yarl>=1.23.0",
+]
