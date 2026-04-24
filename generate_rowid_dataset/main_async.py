@@ -1,10 +1,12 @@
 import asyncio
+from datetime import datetime
+
 import aiohttp
 import csv
 import time
 from typing import Optional
-import os
-from dotenv import load_dotenv
+
+from settings import settings
 
 async def fetch_batch(
     session: aiohttp.ClientSession,
@@ -17,13 +19,11 @@ async def fetch_batch(
     params = {
         "limit": limit,
         "offset": offset,
-        # "sorting": "",
-        # "filters": '[[{"column":"rajon_razvitija","to_lower":true,"operator":"EQUAL","value":"00b23989-43bd-4420-a61d-0d79c90016e2"}]]'
     }
 
     async with semaphore:
         start = time.perf_counter()
-        async with session.get(URL_TEMPLATE, params=params, cookies=COOKIES, headers=HEADERS) as response:
+        async with session.get(URL_TEMPLATE, params=params, headers=HEADERS) as response:
             end = time.perf_counter()
             elapsed = (end - start) * 1000  # в миллисекундах
             request_times.append((offset, elapsed))
@@ -43,8 +43,7 @@ async def worker(
     offset: int,
     limit: int,
     semaphore: asyncio.Semaphore,
-    csv_writer: csv.writer,
-    csv_file,
+    csv_writer,
     results: list,
     request_times: list
 ) -> None:
@@ -91,7 +90,7 @@ async def collect_all_ids(
             tasks = []
             for offset in range(start_offset, start_offset + total_rows, limit):
                 task = asyncio.create_task(
-                    worker(session, offset, limit, semaphore, writer, csvfile, results, request_times)
+                    worker(session, offset, limit, semaphore, writer, results, request_times)
                 )
                 tasks.append(task)
 
@@ -103,12 +102,6 @@ async def collect_all_ids(
 
 
 async def main():
-    # Параметры
-    TOTAL_ROWS = 1000      # Общее количество требуемых строк
-    LIMIT = 100            # Сколько получать за один раз
-    MAX_CONCURRENT = 10    # Количество одновременно работающих корутин
-    START_OFFSET = 0       # Начальный offset для выборки
-    FILENAME = "data/row_ids.csv"  # Имя файла для сохранения
 
     print(f"Запуск сбора данных: total={TOTAL_ROWS}, limit={LIMIT}, concurrent={MAX_CONCURRENT}, start_offset={START_OFFSET}, filename={FILENAME}")
 
@@ -144,26 +137,21 @@ async def main():
 
 if __name__ == "__main__":
 
-    load_dotenv()
+    # Настройки запуска
+    TOTAL_ROWS = 100        # Общее количество требуемых строк
+    LIMIT = 10              # Сколько получать за один раз
+    MAX_CONCURRENT = 10     # Количество одновременно работающих корутин
+    START_OFFSET = 0        # Начальный offset для выборки
 
-    URL = os.getenv('URL')
+    TOPS_URL = settings.TOPS_URL
+    TOPS_DATA_TABLE_ID = settings.TOPS_DATA_TABLE_ID
+    TOKEN = settings.TOKEN
 
-    DATABASES_ID = os.getenv('DATABASES_ID')
-    TABLE_ID = os.getenv('TABLE_ID')
-    TOKEN = os.getenv('TOKEN')
-    SESSION_COOKIE = os.getenv('SESSION_COOKIE')
+    URL_TEMPLATE = f"{TOPS_URL}/api/chiara/table_data/{TOPS_DATA_TABLE_ID}"
 
-    URL_TEMPLATE = f"https://{URL}/api/chiara/table_data/{TABLE_ID}"
+    HEADERS = {"x-lamb-auth-token": TOKEN}
 
-    COOKIES = {
-        "session-cookie": SESSION_COOKIE
-    }
-
-    HEADERS = {
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
-        "Accept": "application/json, text/plain, */*",
-        "Referer": f"https://{URL}/databases/{DATABASES_ID}/{TABLE_ID}",
-        "x-lamb-auth-token": TOKEN
-    }
+    timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+    FILENAME = f"data/row_ids_{timestamp}.csv"  # Имя файла для сохранения
 
     asyncio.run(main())

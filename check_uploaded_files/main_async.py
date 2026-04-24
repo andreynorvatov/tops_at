@@ -5,7 +5,7 @@ from service import get_data_from_service, prepare_url
 from data_transform import extract_task_data, extract_row_id_data, union_data_dicts
 from write_file import generate_file
 from checks import check_task_data
-
+from settings import settings
 
 async def main():
     # 1. Проверка количества task_id в таблице для поверки импорта
@@ -19,7 +19,7 @@ async def main():
         between_date_sql_template = f"and (start_time::bigint between {START_DATE} and {END_DATE})"
 
 
-    task_id_count_to_check = count_data_size(DP_HOST, TABLE_NAME, params, headers=None)
+    task_id_count_to_check = count_data_size(DATAPROVIDER_API_URL, TABLE_NAME, params, headers=None)
     print(f"Количество записей в таблице для проверки: {task_id_count_to_check}")
 
     if task_id_count_to_check == 0:
@@ -32,10 +32,9 @@ async def main():
         exit(-1)
 
     # 2. Получение данных для проверки из Датапровайдера
-    data_from_dataprovider = get_data_from_dataprovider(DP_HOST, TABLE_NAME, params)
+    data_from_dataprovider = get_data_from_dataprovider(DATAPROVIDER_API_URL, TABLE_NAME, params)
 
     # 3. Получение данных по task_id из сервиса
-
     api_path_task_id = "/api/mona/background_tasks/{task_id}"
     # подготовка url для запуска асинхронного цикла
     background_tasks_urls = prepare_url(TOPS_URL, api_path_task_id, data_from_dataprovider)
@@ -78,7 +77,7 @@ async def main():
 
     # 7. Отметка в Датапровайдере данных как "проверенные"
     if MARK_CHECKED_IN_DATAPROVIDER:
-        mark_res = mark_checked_rows_in_dataprovider_by_row_id(DP_HOST, TABLE_NAME, aggregation_result.keys())
+        mark_res = mark_checked_rows_in_dataprovider_by_row_id(DATAPROVIDER_API_URL, TABLE_NAME, [k for k in aggregation_result.keys()])
 
         print(mark_res.get("message"))
         if not mark_res.get("success"):
@@ -94,15 +93,15 @@ if __name__ == "__main__":
     START_DATE = "1776696816117"
     END_DATE = "1776762643345"
 
-    DP_HOST = "http://10.126.145.36:3000"
-    TABLE_NAME = 'tops_checkupdate_pp'
-
-    TOPS_URL="https://tops-stage.mos.ru"
-    TOKEN="eyJhbGciOiJFUzM4NCIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjoiOTUzN2RlMTQtOTAyOC00ZjIxLThkNDQtOTRlMDVkMDRmNzBjIiwidG9rZW5faWQiOiI1YWQ5YjFhYi1iY2FlLTQ0MzYtOWUwZi1hZjQ2YjU4YWZhZTEiLCJyb2xlIjoiT1BFUkFUT1IiLCJleHAiOjE3NzcwMTk2NDR9.Eiged3-69pDN2bIl62J1kyjbJy7YRzBvhTn7-3kqZx4EjNKAyFbImKr8wEUawO1vIY-kqX287zUsEO8ILY8da63o7iJ-3G9kJUXXkmk-Dkh368rISicFCUIfTBsaf6YW"
-
     # Настройки запуска
     MAX_TASK_ID = 300
     MAX_CONCURRENT_HTTP_REQUESTS = 10
     MARK_CHECKED_IN_DATAPROVIDER = True
+
+    DATAPROVIDER_API_URL = settings.DATAPROVIDER_API_URL
+    TABLE_NAME = settings.TABLE_NAME_CHECK_UPDATE
+
+    TOPS_URL=settings.TOPS_URL
+    TOKEN=settings.TOKEN
 
     asyncio.run(main())
